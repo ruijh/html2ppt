@@ -1,0 +1,30 @@
+{
+  "name": "html2ppt",
+  "version": "1.0.0",
+  "description": "Convert HTML slide templates to PPTX via Playwright + PptxGenJS",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "keywords": [
+    "html",
+    "pptx",
+    "powerpoint",
+    "playwright",
+    "pptxgenjs",
+    "slides",
+    "converter"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "render": "node scripts/render-slides.js",
+    "convert": "node src/index.js",
+    "batch": "node src/batch.js",
+    "web2pptx": "node src/web2pptx.js"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0",
+    "pptxgenjs": "^3.12.0"
+  }
+}
