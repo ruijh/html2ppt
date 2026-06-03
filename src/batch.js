@@ -9,15 +9,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 async function main() {
   const samplesDir = process.argv[2] || path.join(__dirname, '..', 'sample');
 
-  let files;
+  let htmlFiles;
   try {
-    files = await readdir(samplesDir);
+    const files = await readdir(samplesDir);
+    htmlFiles = files.filter(f => f.endsWith('.html'));
   } catch (err) {
     console.error(`Error: Cannot read directory ${samplesDir}: ${err.message}`);
     process.exit(1);
   }
-
-  const htmlFiles = files.filter(f => f.endsWith('.html'));
 
   if (htmlFiles.length === 0) {
     console.error(`No HTML files found in ${samplesDir}`);
