@@ -29,11 +29,23 @@ export async function renderSlides(htmlPath, { headless = true } = {}) {
 
     for (let i = 0; i < slideCount; i++) {
       await page.evaluate((idx) => {
+        // 强制覆盖所有 slide 的显示和可见性状态，统一通过内联样式控制
+        // 这样可以兼容三种 HTML 格式：
+        // - frontend-slides / guizang-ppt: 通过 .active 类控制 (opacity/visibility)
+        // - html-ppt-skill: 通过 .is-active 类控制 (display/flex)
         document.querySelectorAll('.slide').forEach((s) => {
           s.style.display = 'none';
+          s.style.opacity = '0';
+          s.style.visibility = 'hidden';
+          // 移除可能干扰的类
+          s.classList.remove('active', 'is-active');
         });
         const target = document.querySelectorAll('.slide')[idx];
-        if (target) target.style.display = 'block';
+        if (target) {
+          target.style.display = 'flex';
+          target.style.opacity = '1';
+          target.style.visibility = 'visible';
+        }
       }, i);
       await page.waitForTimeout(300);
 
