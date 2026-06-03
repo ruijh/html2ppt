@@ -1,20 +1,6 @@
 ---
 name: html2ppt
-description: Convert HTML slides and web pages to PPTX via Playwright + PptxGenJS
-commands:
-  - node src/index.js <path-to-html>               # Convert HTML slide deck to PPTX
-  - node src/web2pptx.js <path-to-html>            # Convert long-form web page to PPTX
-  - node src/batch.js [directory]                  # Batch-convert HTML files in directory
-  - node scripts/build-slides.js <input> [output]  # Transform web page into slide deck HTML
-  - node scripts/render-slides.js <path-to-html>   # Preview: render slides to PNG
-triggers:
-  - Convert HTML presentation to PowerPoint
-  - HTML slides to PPTX
-  - html template to pptx
-  - Convert web page to PowerPoint
-  - Long article to PPTX
-  - Report page to PowerPoint
-  - web page to pptx
+description: "Convert HTML slides and web pages to PowerPoint PPTX. Invoke when user wants to: convert HTML to PPTX, turn a webpage or Markdown into slides, batch-convert a folder of HTML, preview slides as PNG, run HTML-to-PPTX regression tests, diff two PPTX files, evaluate conversion quality, generate a compatibility report, or check whether their HTML slide skill (frontend-slides, guizang-ppt-skill, html-ppt-skill, cjl-slides, markdown-slides) is supported."
 ---
 
 # html2ppt
@@ -43,47 +29,115 @@ HTML file → Playwright (Chromium headless)
 | `src/index.js` | CLI: slide deck → PPTX |
 | `src/web2pptx.js` | CLI: web page → PPTX |
 | `src/batch.js` | CLI: batch-convert directory |
-| `scripts/build-slides.js` | Transform web page into slide deck HTML |
 | `scripts/render-slides.js` | Dev: preview render to `output/<name>/` PNGs |
+| `scripts/build-slides.js` | Transform web page into slide deck HTML |
+| `scripts/common.js` | Shared constants (PATHS, VERIFIED_SKILLS, RENDER) |
+| `scripts/regression-test.js` | Regression test for 5 verified skills |
+| `scripts/pptx-diff.js` | PPTX internal XML diff (using adm-zip) |
+| `scripts/visual-eval.js` | Heuristic image quality scoring |
+| `scripts/ci-cd.js` | CI/CD pipeline orchestrator (regression + diff + visual eval + report) |
 
-## Mode 1: Slide Deck (html2ppt)
+## When Users Ask…
 
-For HTML files with `.slide` class elements.
+| User says | What you should do |
+|-----------|---------------------|
+| "把这份 HTML 转成 PPTX" / "convert this HTML to PowerPoint" | `pnpm convert` (slide deck) or `pnpm web2pptx` (long-form page) |
+| "把这份网页/报告/白皮书做成幻灯片" | `node scripts/build-slides.js` → `pnpm convert` |
+| "把这份 Markdown 转成幻灯片" | **No direct Markdown→PPTX path.** html2ppt only does HTML→PPTX. You must first convert Markdown → HTML using one of the [Verified Skills](#verified-skills) below (markdown-slides is the most direct), then `pnpm convert`. See the skill-picker guide in [Choosing a Skill](#choosing-a-skill) to pick the right one. |
+| "批量转换整个文件夹的 HTML" | `pnpm batch` |
+| "支持哪些 HTML 技能？" | See [Verified Skills](#verified-skills) section below |
 
-**HTML assumptions:**
-- Resolution: **1280×720px** per slide
-- Slides have `.slide` class
-- Navigation `#nav`/`#cnt` is hidden in output
-- Right-bottom `pnum` page numbers are **preserved**
+## Commands
+
+### Convert HTML to PPTX (user-facing)
 
 ```bash
-# Single file
+# Convert an HTML slide deck to PPTX
 node src/index.js <path-to-slides.html>
+# or: pnpm convert <path-to-slides.html>
 
-# Batch convert
-node src/batch.js [directory]
-
-# Preview as PNG
-node scripts/render-slides.js <path-to-slides.html>
-```
-
-## Mode 2: Web Page (web2pptx)
-
-For long-form HTML with `<section id="...">` structure.
-
-**HTML assumptions:**
-- Page contains `<section id="...">` elements
-- Fixed navigation (`.nav`) and noise overlay (`body::before`) are hidden in output
-- Each section is rendered at min-height 720px
-
-```bash
-# Convert web page
+# Convert a long-form web page / report to PPTX
 node src/web2pptx.js <path-to-report.html>
+# or: pnpm web2pptx <path-to-report.html>
 
-# Or: transform web page to slide deck first, then convert
+# Batch convert every HTML file in a directory
+node src/batch.js [directory]
+# or: pnpm batch
+
+# Convert a web page → slide deck HTML → PPTX (two-step)
 node scripts/build-slides.js <input.html> [output.html]
 node src/index.js <output.html>
 ```
+
+### Preview Before Converting (user-facing)
+
+```bash
+# Render slide previews as PNGs (no PPTX generated)
+node scripts/render-slides.js <path-to-slides.html>
+# or: pnpm render
+# Output: output/<basename>/slide-NNN.png
+```
+
+### Quality Assurance / CI (developer-facing)
+
+```bash
+# Full CI pipeline (regression + PPTX diff + visual eval + report)
+node scripts/ci-cd.js
+# or: pnpm ci
+
+# Regression test only (5 verified skills)
+node scripts/regression-test.js
+# or: pnpm regression
+```
+
+## CI/CD Pipeline
+
+The `ci-cd.js` orchestrator runs four stages:
+
+1. **Regression test** — Renders 5 verified skills (frontend-slides, guizang-ppt-skill, html-ppt-skill, cjl-slides, markdown-slides) in parallel, converts each to PPTX
+2. **PPTX diff** — Decompresses each PPTX with `adm-zip`, compares every XML/media file against the previous snapshot, archives a 7-day rolling snapshot history
+3. **Visual evaluation** — Heuristic scoring (file size, naming consistency) on each slide PNG
+4. **Report generation** — Markdown + JSON report saved to `docs/reports/compatibility-<timestamp>.{md,json}` and `compatibility-latest.{md,json}`
+
+Exit code is non-zero on any skill failure.
+
+## Verified Skills
+
+| Skill | Style | Best for |
+|-------|-------|----------|
+| `frontend-slides` | 动画丰富 / 24 设计风格 | 通用商务 / 教学课件 / 营销演示 |
+| `guizang-ppt-skill` | 瑞士极简 / 留白克制 | 产品发布 / 学术汇报 / 投资人路演 |
+| `html-ppt-skill` | Tokyo Night 深色 / 终端风 | 开发者分享 / 技术评审 / DevOps 报告 |
+| `cjl-slides` | Pitch.com 商务优雅 / 24 全球风格 | 商业提案 / 客户演示 / SaaS 介绍 |
+| `markdown-slides` | Dark Terminal / 极简 | **Markdown 笔记直接转幻灯片**（最直接的 Markdown 入口） |
+
+### Choosing a Skill
+
+> **html2ppt only converts HTML → PPTX.** When your source is Markdown, a long web report, or any non-HTML format, you must first run one of the skills above (or any other HTML slide generator) to produce an HTML file, then come back to `pnpm convert`.
+
+Pick a skill by answering these:
+
+1. **Is your source already Markdown?**
+   - ✅ Yes → use `markdown-slides` (designed for Markdown, lightest setup)
+   - ❌ No, it's prose / notes → any skill works; pick by visual style below
+
+2. **What look do you want?**
+   - Lively & colorful → `frontend-slides` (24 styles, animation-rich)
+   - Minimal & Swiss-design → `guizang-ppt-skill`
+   - Dark / developer / code-heavy → `html-ppt-skill` or `markdown-slides`
+   - Polished & business-classy → `cjl-slides` (24 global styles)
+
+3. **Is the audience external (client / investor) or internal (team / devs)?**
+   - External → `cjl-slides` or `frontend-slides`
+   - Internal → `html-ppt-skill` or `markdown-slides`
+
+Sample inputs for each skill are in the [`sample/`](sample/) directory.
+
+| Sample input | Skill to use | Command |
+|--------------|--------------|---------|
+| `sample/sample.md` (Markdown) | `markdown-slides` | `npx clawhub@latest install markdown-slides` → invoke → `pnpm convert sample/sample-markdown-slides.html` |
+| Pre-existing HTML slide deck | any | `pnpm convert <file>.html` |
+| Long web report (`section[id]`) | `frontend-slides` / `cjl-slides` | invoke skill → `pnpm convert <file>.html` |
 
 ## Output
 
@@ -91,3 +145,16 @@ node src/index.js <output.html>
 - Each slide: full-bleed 1280×720px PNG image
 - Layout: `CUSTOM` (10×5.625 in, 16:9)
 - Text is **not editable** — image-only for 100% visual fidelity
+- Slide preview PNGs: `output/<basename>/slide-NNN.png`
+- CI reports: `docs/reports/compatibility-<timestamp>.{md,json}`
+- PPTX snapshots: `docs/reports/pptx-snapshots/<skill>-<ts>/`
+
+## Dependencies
+
+- `playwright` — Chromium headless rendering
+- `pptxgenjs` — PPTX generation
+- `adm-zip` — PPTX internal XML diff
+
+## Node Version
+
+Requires Node.js >= 18 (uses native ESM).
