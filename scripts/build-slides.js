@@ -1,5 +1,6 @@
 import path from 'path';
 import { readFile, writeFile } from 'fs/promises';
+import { RENDER } from './common.js';
 
 const inputPath = process.argv[2];
 if (!inputPath) {
@@ -32,7 +33,8 @@ try {
   }
 
   function extractSection(html, id) {
-    const startTag = `<section[^>]*id="${id}"[^>]*>`;
+    const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const startTag = `<section[^>]*id="${escapedId}"[^>]*>`;
     const startIdx = html.search(new RegExp(startTag));
     if (startIdx === -1) return null;
     const afterStart = html.indexOf('>', startIdx) + 1;
@@ -47,12 +49,12 @@ try {
   }
 
   const extraStyles = `
-#deck { width: 1280px; height: 720px; position: relative; overflow: hidden; margin: 0 auto; }
+#deck { width: ${RENDER.VIEWPORT.width}px; height: ${RENDER.VIEWPORT.height}px; position: relative; overflow: hidden; margin: 0 auto; }
 .slide { position: absolute; inset: 0; display: none; overflow: hidden; }
 .slide.active { display: block; }
 .nav, body::before, .chapter-nav, .hero-scroll { display: none !important; }
-section.hero, section.section { min-height: 720px; height: 720px; overflow: hidden; padding: 40px 60px; box-sizing: border-box; display: block; }
-.section { max-width: 1280px; margin: 0; }
+section.hero, section.section { min-height: ${RENDER.VIEWPORT.height}px; height: ${RENDER.VIEWPORT.height}px; overflow: hidden; padding: 40px 60px; box-sizing: border-box; display: block; }
+.section { max-width: ${RENDER.VIEWPORT.width}px; margin: 0; }
 `;
 
   const slidesHtml = sectionIds.map((id, i) => {
