@@ -1,6 +1,6 @@
 ---
 name: html2ppt
-description: "Convert HTML slides and web pages to PowerPoint PPTX. Invoke when user wants to: convert HTML to PPTX, turn a webpage or Markdown into slides, batch-convert a folder of HTML, preview slides as PNG, run HTML-to-PPTX regression tests, diff two PPTX files, evaluate conversion quality, generate a compatibility report, or check whether their HTML slide skill (frontend-slides, guizang-ppt-skill, html-ppt-skill, cjl-slides, markdown-slides) is supported."
+description: "Convert HTML slides and web pages to PowerPoint PPTX. Invoke when user wants to convert HTML to PPTX, turn a webpage into slides, batch-convert HTML files, preview slides as PNG, or check supported HTML slide skills."
 ---
 
 # html2ppt
