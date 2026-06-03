@@ -11,15 +11,11 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { renderSlides } from '../src/render.js';
 import { convertToPptx } from '../src/convert.js';
 import { comparePptx } from './pptx-diff.js';
 import { evaluateSkill } from './visual-eval.js';
-import { ROOT, PATHS, VERIFIED_SKILLS, formatTimestamp, formatSize } from './common.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { PATHS, VERIFIED_SKILLS, formatTimestamp, formatSize } from './common.js';
 
 /**
  * 阶段 1: 回归测试（并行执行）
