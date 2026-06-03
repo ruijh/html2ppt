@@ -1,18 +1,22 @@
 import { chromium } from 'playwright';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { readFile } from 'fs/promises';
+import { RENDER } from '../scripts/common.js';
 
-export async function renderSections(htmlPath, { headless = true, viewport = { width: 1280, height: 720 } } = {}) {
+const DEFAULT_VIEWPORT = RENDER.VIEWPORT;
+
+export async function renderSections(htmlPath, { headless = true, viewport = DEFAULT_VIEWPORT } = {}) {
   const browser = await chromium.launch({ headless, args: ['--no-sandbox'] });
 
   try {
-    const fileUrl = path.resolve(htmlPath).replace(/\\/g, '/');
+    const resolvedUrl = pathToFileURL(path.resolve(htmlPath)).href;
     const htmlContent = await readFile(htmlPath, 'utf8');
 
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     await page.setViewportSize(viewport);
-    await page.setContent(htmlContent, { url: `file:///${fileUrl}` });
+    await page.setContent(htmlContent, { url: resolvedUrl });
     await page.waitForTimeout(1000);
 
     const sectionIds = await page.evaluate(() =>
@@ -46,7 +50,7 @@ export async function renderSections(htmlPath, { headless = true, viewport = { w
         type: 'png',
         clip: { x: 0, y: clipY, width: viewport.width, height: clipH }
       });
-      buffers.push({ id, buffer: buf });
+      buffers.push(buf);
     }
 
     await ctx.close();
