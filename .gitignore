@@ -12,5 +12,8 @@ CLAUDE.md
 sample/
 docs/
 temp_b64_*.txt
+
+# Python 文件全部不提交（项目为 Node.js，Python 仅作 agent 本地辅助工具）
+*.py
 *.pyc
 __pycache__/
