@@ -15,7 +15,7 @@ try {
   console.log(`Captured ${buffers.length} sections: ${sectionIds.join(', ')}`);
 
   console.log('Building PPTX...');
-  await convertToPptx(buffers.map(b => b.buffer), outputPath);
+  await convertToPptx(buffers, outputPath);
   console.log(`Done: ${outputPath}`);
 } catch (err) {
   console.error(`Error: ${err.message}`);
