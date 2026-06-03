@@ -21,9 +21,13 @@
     "render": "node scripts/render-slides.js",
     "convert": "node src/index.js",
     "batch": "node src/batch.js",
-    "web2pptx": "node src/web2pptx.js"
+    "web2pptx": "node src/web2pptx.js",
+    "regression": "node scripts/regression-test.js",
+    "ci": "node scripts/ci-cd.js",
+    "prepublishOnly": "node scripts/ci-cd.js"
   },
   "dependencies": {
+    "adm-zip": "^0.5.17",
     "playwright": "^1.49.0",
     "pptxgenjs": "^3.12.0"
   }
