@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { ROOT, PATHS } from './common.js';
+import { PATHS } from './common.js';
 
 /**
  * 评估单张图片（基于文件大小和内容启发式）
@@ -102,14 +102,3 @@ export async function evaluateSkill(skillName) {
   };
 }
 
-/**
- * 深度图像理解（调用 minimax-image-understanding 技能）
- * 注：这是异步钩子，由 CI 流程调度
- */
-export async function deepImageAnalysis(imagePath) {
-  return {
-    status: 'pending',
-    imagePath,
-    message: '需要 minimax-image-understanding 技能执行',
-  };
-}
