@@ -7,7 +7,7 @@ import { convertToPptx } from './convert.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function main() {
-  const samplesDir = process.argv[2] || path.join(__dirname, '..', 'samples');
+  const samplesDir = process.argv[2] || path.join(__dirname, '..', 'sample');
 
   let files;
   try {
