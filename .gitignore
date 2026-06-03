@@ -14,4 +14,3 @@ docs/
 temp_b64_*.txt
 *.pyc
 __pycache__/
-*.py
