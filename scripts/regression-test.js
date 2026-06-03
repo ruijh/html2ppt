@@ -9,7 +9,7 @@ import path from 'path';
 import { renderSlides } from '../src/render.js';
 import { convertToPptx } from '../src/convert.js';
 import { comparePptx } from './pptx-diff.js';
-import { ROOT, PATHS, VERIFIED_SKILLS, formatTimestamp, formatSize } from './common.js';
+import { PATHS, VERIFIED_SKILLS, formatTimestamp, formatSize } from './common.js';
 
 async function testSkill(skill) {
   const htmlPath = path.join(PATHS.SAMPLE, `sample-${skill.name}.html`);
