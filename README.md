@@ -128,12 +128,6 @@ html2ppt/
 ├── scripts/
 │   ├── render-slides.js  # PNG 预览脚本
 │   └── build-slides.js   # 网页转幻灯片
-├── .claude/
-│   ├── github-config.env # GitHub 配置（不提交）
-│   ├── github-deploy.js  # GitHub API 部署脚本
-│   └── README.md
-└── docs/
-    └── skills-briefing.md # HTML 生成技能简报
 ```
 
 ## License
