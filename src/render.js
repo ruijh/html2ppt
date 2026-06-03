@@ -1,18 +1,22 @@
 import { chromium } from 'playwright';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { readFile } from 'fs/promises';
+import { RENDER } from '../scripts/common.js';
 
-export async function renderSlides(htmlPath, { headless = true } = {}) {
+const DEFAULT_VIEWPORT = RENDER.VIEWPORT;
+
+export async function renderSlides(htmlPath, { headless = true, viewport = DEFAULT_VIEWPORT } = {}) {
   const browser = await chromium.launch({ headless, args: ['--no-sandbox'] });
 
   try {
-    const fileUrl = path.resolve(htmlPath).replace(/\\/g, '/');
+    const resolvedUrl = pathToFileURL(path.resolve(htmlPath)).href;
     const htmlContent = await readFile(htmlPath, 'utf8');
 
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
-    await page.setViewportSize({ width: 1280, height: 720 });
-    await page.setContent(htmlContent, { url: `file:///${fileUrl}` });
+    await page.setViewportSize(viewport);
+    await page.setContent(htmlContent, { url: resolvedUrl });
 
     const slideCount = await page.locator('.slide').count();
     if (slideCount === 0) {
@@ -20,10 +24,6 @@ export async function renderSlides(htmlPath, { headless = true } = {}) {
     }
 
     await page.addStyleTag({ content: '#nav, #cnt { display: none !important; }' });
-
-    const slideIds = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('.slide')).map(s => s.id)
-    );
 
     const buffers = [];
 
@@ -51,13 +51,13 @@ export async function renderSlides(htmlPath, { headless = true } = {}) {
 
       const buffer = await page.screenshot({
         type: 'png',
-        clip: { x: 0, y: 0, width: 1280, height: 720 }
+        clip: { x: 0, y: 0, width: viewport.width, height: viewport.height }
       });
       buffers.push(buffer);
     }
 
     await ctx.close();
-    return { buffers, width: 1280, height: 720 };
+    return { buffers, width: viewport.width, height: viewport.height };
   } finally {
     await browser.close();
   }
