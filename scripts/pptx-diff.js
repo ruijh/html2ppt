@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
-import { ROOT, PATHS } from './common.js';
+import { PATHS } from './common.js';
 
 /**
  * 清理超过 N 天的旧快照（默认保留最近 7 天）
@@ -119,7 +119,7 @@ function loadPreviousSnapshot() {
 }
 
 /**
- * 保存当前 PPTX 快照
+ * 保存当前 PPTX 快照（同时清理索引中已删除的条目）
  */
 function saveCurrentSnapshot(snapshot) {
   const snapshotDir = path.join(PATHS.REPORTS, 'pptx-snapshots');
@@ -134,6 +134,13 @@ function saveCurrentSnapshot(snapshot) {
   }
 
   index.push(snapshot);
+
+  // 清理索引中指向已删除目录的条目
+  index = index.filter(entry => {
+    const entryDir = path.join(snapshotDir, entry.snapshotId);
+    return fs.existsSync(entryDir);
+  });
+
   fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
 }
 
