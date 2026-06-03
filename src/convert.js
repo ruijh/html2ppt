@@ -4,6 +4,9 @@ export async function convertToPptx(buffers, outputPath) {
   if (!buffers || buffers.length === 0) {
     throw new Error('No slide images to convert');
   }
+  if (!Buffer.isBuffer(buffers[0])) {
+    throw new Error('Invalid slide image: expected Buffer, got ' + typeof buffers[0]);
+  }
 
   const pptx = new PptxGenJS();
 
