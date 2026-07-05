@@ -23,7 +23,7 @@ export async function renderSlides(htmlPath, { headless = true, viewport = DEFAU
       throw new Error(`No .slide elements found in ${htmlPath}`);
     }
 
-    await page.addStyleTag({ content: '#nav, #cnt { display: none !important; }' });
+    await page.addStyleTag({ content: '#nav, #cnt, .deck-nav, .deck-progress { display: none !important; }' });
 
     const buffers = [];
 
