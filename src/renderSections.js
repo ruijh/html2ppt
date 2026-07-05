@@ -28,7 +28,7 @@ export async function renderSections(htmlPath, { headless = true, viewport = DEF
     }
 
     await page.addStyleTag({
-      content: `.nav, body::before { display: none !important; } body { padding-top: 0 !important; } section[id] { min-height: ${viewport.height}px; overflow: hidden; box-sizing: border-box; }`
+      content: `.nav, .deck-nav, .deck-progress, body::before { display: none !important; } body { padding-top: 0 !important; } section[id] { min-height: ${viewport.height}px; overflow: hidden; box-sizing: border-box; }`
     });
 
     const buffers = [];
